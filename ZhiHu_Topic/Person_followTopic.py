@@ -47,32 +47,37 @@ print (LogInState.json())['msg']
 
 
 def getFollowTopic(PersonID):
-    print '正在获取用户 '+str(PersonID)+' 话题关注列表'
-    headers = dict(Default_Header)
-    headers['Referer'] = 'https://www.zhihu.com/people/CodeZWT/following/topics'
-    headers['authorization'] = 'Bearer Mi4wQUFDQXJsc3FBQUFBVUVBRzdvX0hDaGNBQUFCaEFsVk5zY2QwV0FEWXVrN2ZmUndoWVNtNTdUc2pSQmZxQVp2eWx3|1481456612|5d7b5586007081c4ee89c5674127bf795f520de4'
-    ZhiHu_session.headers.update(headers)
-    list_followTopic = []
-    
-    NextUrl = 'https://www.zhihu.com/api/v4/members/'+str(PersonID)+'/following-topic-contributions?include=data%5B*%5D.topic.introduction&offset=0&per_page=10&limit=10'
-    sign = True
-    while sign :
-        Temp = ZhiHu_session.get(NextUrl)
-#         print json.dumps(Temp.json(),ensure_ascii=False,encoding='UTF-8')
-        NextUrl = (Temp.json())['paging']['next']
-        if (Temp.json())['paging']['is_end']:
-            sign = False
-        list_topic = (Temp.json())['data']
-        for n in list_topic:
-            id = n["topic"]['id']
-            list_followTopic.append(id)
-    print len(set(list_followTopic))
-#     print set(list_followTopic)
-    return  list_followTopic
+    try:
+        print '正在获取用户 '+str(PersonID)+' 话题关注列表'
+        headers = dict(Default_Header)
+        headers['Referer'] = 'https://www.zhihu.com/people/CodeZWT/following/topics'
+        headers['authorization'] = 'Bearer Mi4wQUFDQXJsc3FBQUFBVUVBRzdvX0hDaGNBQUFCaEFsVk5zY2QwV0FEWXVrN2ZmUndoWVNtNTdUc2pSQmZxQVp2eWx3|1481456612|5d7b5586007081c4ee89c5674127bf795f520de4'
+        ZhiHu_session.headers.update(headers)
+        list_followTopic = []
+        
+        NextUrl = 'https://www.zhihu.com/api/v4/members/'+str(PersonID)+'/following-topic-contributions?include=data%5B*%5D.topic.introduction&offset=0&per_page=10&limit=10'
+        sign = True
+        while sign :
+            Temp = ZhiHu_session.get(NextUrl)
+    #         print json.dumps(Temp.json(),ensure_ascii=False,encoding='UTF-8')
+            NextUrl = (Temp.json())['paging']['next']
+            if (Temp.json())['paging']['is_end']:
+                sign = False
+            list_topic = (Temp.json())['data']
+            for n in list_topic:
+                id = n["topic"]['id']
+                list_followTopic.append(id)
+        print len(set(list_followTopic))
+    #     print set(list_followTopic)
+        return  list_followTopic
+    except:
+        print 'error'+str(PersonID)
+        return 0
 
 
 list_person = MySQL_Operation.selectDB_Person()
 for PersonID in list_person:
     list_followTopic = getFollowTopic(PersonID)
-    MySQL_Operation.insertDB_followTopic(PersonID, list_followTopic)
+    if list_followTopic:
+        MySQL_Operation.insertDB_followTopic(PersonID, list_followTopic)
     
