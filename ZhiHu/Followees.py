@@ -17,31 +17,35 @@ Default_Header = {'X-Requested-with':'XMLHttpRequest',
 ZhiHu_session = requests.session()
 ZhiHu_session.headers.update(Default_Header)
 
-BaseUrl = 'http://www.zhihu.com/'
+BaseUrl = 'https://www.zhihu.com/'
 #######获取XSRF
 BaseHtml = BeautifulSoup(ZhiHu_session.get(BaseUrl).content,'lxml')
 Xsrf = BaseHtml.find('input',attrs={'name':'_xsrf'})['value']
 #######LogIn登录
 print"知乎模拟登录："
 method = raw_input("    请输入 1 选择手机登录，输入 2 选择邮箱的登录：")
-CaptureUrl = BaseUrl + 'captcha.gif?type=login'
+# CaptureUrl = BaseUrl + 'captcha.gif?type=login'
+CaptureUrl = 'https://www.zhihu.com/captcha.gif?r=1481427841553&type=login'
 with open('LogInParams/cap.gif','wb')as capFile:
     capFile.write(ZhiHu_session.get(CaptureUrl).content)
 if method == '1':
     LogInName = raw_input("    请输入手机号：")
     Password = raw_input("    请输入密码：")
-    Login_Url = BaseUrl + '/login/phone_num'
+    Login_Url = BaseUrl + 'login/phone_num'
     Captcha = raw_input("    请输入验证码：")
-    Data = {'phone_num':LogInName,'password':Password,'captcha':Captcha}
+    Data = {'_xsrf':Xsrf,'password':Password,'captcha':Captcha,'phone_num':LogInName}
 elif method == '2':
     LogInName = raw_input("    请输入邮箱：")
     Password = raw_input("    请输入密码：")
-    Login_Url = BaseUrl + '/login/email'
+    Login_Url = BaseUrl + 'login/email'
     Captcha = raw_input("    请输入验证码：")
     Data = {'email':LogInName,'password':Password,'captcha':Captcha}
 else:
     print "登录方法选择错误"
 LogInState = ZhiHu_session.post(Login_Url,data=Data)
+print Login_Url
+print Xsrf
+print Data
 print (LogInState.json())['msg']
 
     
