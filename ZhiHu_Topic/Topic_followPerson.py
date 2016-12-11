@@ -7,6 +7,7 @@ Created on Dec 11, 2016
 import MySQL_Operation
 
 import requests
+import json
 from bs4 import BeautifulSoup
 
 Default_Header = {'X-Requested-with':'XMLHttpRequest',
@@ -45,6 +46,31 @@ LogInState = ZhiHu_session.post(Login_Url,data=Data)
 print (LogInState.json())['msg']
 
 
+# def getFollowTopic(PersonID):
+#     headers = dict(Default_Header)
+#     headers['Referer'] = 'https://www.zhihu.com/people/CodeZWT/following/topics'
+#     headers['authorization'] = 'Bearer Mi4wQUFDQXJsc3FBQUFBVUVBRzdvX0hDaGNBQUFCaEFsVk5zY2QwV0FEWXVrN2ZmUndoWVNtNTdUc2pSQmZxQVp2eWx3|1481456612|5d7b5586007081c4ee89c5674127bf795f520de4'
+#     ZhiHu_session.headers.update(headers)
+#     list_followTopic = []
+#     
+#     NextUrl = 'https://www.zhihu.com/api/v4/members/CodeZWT/following-topic-contributions?include=data%5B*%5D.topic.introduction&offset=0&per_page=10&limit=10'
+#     sign = True
+#     while sign :
+#         Temp = ZhiHu_session.get(NextUrl)
+# #         print json.dumps(Temp.json(),ensure_ascii=False,encoding='UTF-8')
+#         NextUrl = (Temp.json())['paging']['next']
+#         if (Temp.json())['paging']['is_end']:
+#             sign = False
+#         list_topic = (Temp.json())['data']
+#         for n in list_topic:
+#             id = n["topic"]['id']
+#             list_followTopic.append(id)
+#     print len(set(list_followTopic))
+#     print set(list_followTopic)
+# 
+# 
+# PersonID = 'CodeShark'
+# getFollowTopic(PersonID)
 
 def getTopicFollow(TopicID):
     print '正在获取话题 '+str(TopicID)+' 关注列表:'
@@ -58,7 +84,7 @@ def getTopicFollow(TopicID):
         PersonID = person.h2.a['href'].replace('/people/','')
 #         print PersonID,uid
         list_Follow.append(PersonID)
-        
+         
     headers = dict(Default_Header)
     headers['Referer'] = 'https://www.zhihu.com/topic/19776749/followers'
     offset = 40
@@ -67,7 +93,7 @@ def getTopicFollow(TopicID):
         print FollowNum,len(list_Follow),offset,uid
         Data = {'offset':offset,'start':uid,'_xsrf':Xsrf}
         follow = ZhiHu_session.post(TopicURL,data=Data,headers=headers)
-        
+         
         Temphtml = BeautifulSoup((follow.json())['msg'][1],'lxml')
         TempfollowPerson = Temphtml.find_all('div',class_='zm-person-item')
         followlength = len(TempfollowPerson)
@@ -78,16 +104,16 @@ def getTopicFollow(TopicID):
             list_Follow.append(PersonID)
     print len(list_Follow)
     return list_Follow
-            
-            
-        
-        
+             
+             
+         
+         
 # TopicID = '19746428'
 list_topic = MySQL_Operation.selectDB_TopicList()
 for TopicID in list_topic:
     print TopicID
     list_follow = getTopicFollow(TopicID)
     MySQL_Operation.insertDB_TopicFollow(TopicID, list_follow)
-
+ 
 
 

@@ -30,3 +30,29 @@ def insertDB_TopicFollow(TopicID,list_follow):
             ZhiHu_DB.rollback()
     ZhiHu_DB.close()
     print '话题 '+str(TopicID)+' 存储完成\n'
+    
+    
+def selectDB_Person():
+    ZhiHu_DB = MySQLdb.connect('localhost','root','zwt@1314','ZhiHu_data',charset='utf8')
+    cursor = ZhiHu_DB.cursor()
+    SQL = "SELECT * FROM person_id"
+    cursor.execute(SQL)
+    result = cursor.fetchall()
+    ZhiHu_DB.close()
+    list_person = []
+    for row in result:
+        list_person.append(row[1])
+    return list_person
+
+def insertDB_followTopic(PersonID,list_followTopic):
+    ZhiHu_DB = MySQLdb.connect('localhost','root','zwt@1314','ZhiHu_data',charset='utf8')
+    cursor = ZhiHu_DB.cursor()
+    for topicID in list_followTopic:
+        try:
+            SQL = "INSERT INTO followTopic(PersonID,TopicID)VALUES(\'"+str(PersonID)+"\',\'"+str(topicID)+'\')'
+            cursor.execute(SQL)
+            ZhiHu_DB.commit()
+        except:
+            ZhiHu_DB.rollback()
+    ZhiHu_DB.close()
+    print '用户 '+str(PersonID)+' 关注话题列表存储完成\n'
